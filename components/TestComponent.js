@@ -1,11 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MyTabs from './containers/Tabs'
 
-export default function App() {
+export default function TestComponent() {
   return (
-    <MyTabs />
+    <View style={styles.container}>
+      <Text>TQM!</Text>
+    </View>
   );
 }
 
