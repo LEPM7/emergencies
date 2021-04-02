@@ -4,16 +4,16 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 //Components
-import TestComponent from '../components/TestComponent';
+import ManualComponent from '../components/ManualComponent';
 import UserLocation from '../components/UserLocation';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function MyTabs() {
   return (
-      <Tab.Navigator>
+      <Tab.Navigator swipeEnabled={false}>
         <Tab.Screen name="Ubicación" component={UserLocation} />
-        <Tab.Screen name="Manuales" component={TestComponent} />
+        <Tab.Screen name="Manuales" component={ManualComponent} />
       </Tab.Navigator>
   );
 }
