@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, TouchableHighlight, TextInput, Alert} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  TouchableHighlight,
+  TextInput,
+  ActivityIndicator,
+  Alert
+} from 'react-native';
 import * as Location from 'expo-location';
-import {Emergency} from '../models/emergency';
-import {EMERGENCY_STATES } from '../models/emergency_states';
+
+import { Emergency } from '../models/emergency';
+import { EMERGENCY_STATES } from '../models/emergency_states';
+import axios from 'axios';
 
 export default function UserLocation() {
 
@@ -12,6 +24,7 @@ export default function UserLocation() {
   const [modalVisible, setModalVisible] = useState(false);
   const [tel, setTel] = useState(null);
   const [name, setName] = useState(null);
+  const [isEmergencyLoading, setEmergencyLoading] = useState(false);
 
   const getLocation = async () => {
     try {
@@ -46,10 +59,14 @@ export default function UserLocation() {
         '',
         name,
       );
+      setEmergencyLoading(true);
+      const saveEmergencyResponse = await axios.post(`https://br6cad6dd4.execute-api.us-east-1.amazonaws.com/dev/emergency`, emergency);
+      Alert.alert('Emergencia guardada con éxito, los bomberos llegaran muy pronto');
     } catch (e) {
+      Alert.alert('Ocurrió un error al guardar, intenta mas tarde');
       console.error(e);
-      return false;
     }
+    setEmergencyLoading(false);
     setModalVisible(!modalVisible);
   }
 
@@ -102,38 +119,43 @@ export default function UserLocation() {
           // Alert.alert("Modal has been closed.");
         }}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Nombre:</Text>
-            <TextInput
-              style={styles.textInputModal}
-              onChangeText={text => setName(text)}
-            />
-            <Text style={styles.modalText}>Telefono:</Text>
-            <TextInput
-              style={styles.textInputModal}
-              onChangeText={text => {
-                text.replace(/[^0-9]/g, '');
-                setTel(text);
-              }}
-              keyboardType = 'numeric'
-            />
-            <TouchableHighlight
-              style={{ ...styles.openButton, backgroundColor: "#009F03", marginTop: 25 }}
-              onPress={() => saveEmergency()}
-            >
-              <Text style={styles.textStyle}>Guardar</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={{ ...styles.openButton, backgroundColor: "#f43131" }}
-              onPress={() => {
-                setModalVisible(!modalVisible);
-              }}
-            >
-              <Text style={styles.textStyle}>Cerrar</Text>
-            </TouchableHighlight>
-          </View>
-        </View>
+        {
+          !isEmergencyLoading ?
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>Nombre:</Text>
+                <TextInput
+                  style={styles.textInputModal}
+                  onChangeText={text => setName(text)}
+                />
+                <Text style={styles.modalText}>Telefono:</Text>
+                <TextInput
+                  style={styles.textInputModal}
+                  onChangeText={text => {
+                    text.replace(/[^0-9]/g, '');
+                    setTel(text);
+                  }}
+                  keyboardType='numeric'
+                />
+                <TouchableHighlight
+                  style={{ ...styles.openButton, backgroundColor: "#009F03", marginTop: 25 }}
+                  onPress={() => saveEmergency()}
+                >
+                  <Text style={styles.textStyle}>Guardar</Text>
+                </TouchableHighlight>
+                <TouchableHighlight
+                  style={{ ...styles.openButton, backgroundColor: "#f43131" }}
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  <Text style={styles.textStyle}>Cerrar</Text>
+                </TouchableHighlight>
+              </View>
+            </View>
+            :
+            <ActivityIndicator size="large" color="#00ff00" />
+        }
       </Modal>
     </View>
   );
