@@ -1,13 +1,19 @@
+import React from 'react';
+
+//Utilities
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import TestComponent from '../components/TestComponent';
+
+//Components
+import ManualComponent from '../components/ManualComponent';
+import UserLocation from '../components/UserLocation';
 
 const Tab = createMaterialTopTabNavigator();
 
-function MyTabs() {
+export default function MyTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Hola" component={TestComponent} />
-      <Tab.Screen name="Adios" component={TestComponent} />
-    </Tab.Navigator>
+      <Tab.Navigator swipeEnabled={false}>
+        <Tab.Screen name="Ubicación" component={UserLocation} />
+        <Tab.Screen name="Manuales" component={ManualComponent} />
+      </Tab.Navigator>
   );
 }
