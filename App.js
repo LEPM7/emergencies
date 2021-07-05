@@ -8,7 +8,7 @@ import MyTabs from './containers/Tabs'
 export default function App() {
   return (
     <NavigationContainer>
-      <StatusBar />
+      <StatusBar barStyle="default" />
       <MyTabs />
     </NavigationContainer>
   );
