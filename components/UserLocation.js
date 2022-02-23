@@ -13,11 +13,7 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 
-import { Emergency } from "../models/emergency";
-import { EMERGENCY_STATES } from "../models/emergency_states";
-import axios from "axios";
-
-export default function UserLocation() {
+export default function UserLocation({ navigation }) {
   const [error, setError] = useState(null);
   const [region, setRegion] = useState({
     latitude: 37.78,
@@ -25,10 +21,6 @@ export default function UserLocation() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0422,
   });
-  const [modalVisible, setModalVisible] = useState(false);
-  const [tel, setTel] = useState(null);
-  const [name, setName] = useState(null);
-  const [isEmergencyLoading, setEmergencyLoading] = useState(false);
 
   const getLocation = async () => {
     try {
@@ -49,40 +41,11 @@ export default function UserLocation() {
       console.log(e);
       setErrorMsg(e.toString());
     }
-    setTimeout(() => getLocation(), 1000);
-  };
-
-  const saveEmergency = async () => {
-    if (!(tel && name && (tel.trim() !== "" || name.trim() !== "")))
-      return false;
-    try {
-      const emergency = new Emergency(
-        EMERGENCY_STATES.NEW,
-        tel,
-        region.latitude,
-        region.longitude,
-        1,
-        "",
-        name
-      );
-      setEmergencyLoading(true);
-      const saveEmergencyResponse = await axios.post(
-        `https://br6cad6dd4.execute-api.us-east-1.amazonaws.com/dev/emergency`,
-        emergency
-      );
-      Alert.alert(
-        "Emergencia guardada con éxito, los bomberos llegaran muy pronto"
-      );
-    } catch (e) {
-      Alert.alert("Ocurrió un error al guardar, intenta mas tarde");
-      console.error(e);
-    }
-    setEmergencyLoading(false);
-    setModalVisible(!modalVisible);
+    setTimeout(() => getLocation(), 5000);
   };
 
   useEffect(() => {
-    setTimeout(() => getLocation(), 1000);
+    getLocation();
   }, []);
 
   return (
@@ -115,66 +78,16 @@ export default function UserLocation() {
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.roundButton}
-            onPress={() => {
-              setName(null);
-              setTel(null);
-              setModalVisible(true);
-            }}
+            onPress={() =>
+              navigation.navigate("UserLocationForm", {
+                region,
+              })
+            }
           >
             <Text style={styles.buttonText}>SOS</Text>
           </TouchableOpacity>
         </View>
       ) : null}
-      {/* MODAL */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          // Alert.alert("Modal has been closed.");
-        }}
-      >
-        {!isEmergencyLoading ? (
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Nombre:</Text>
-              <TextInput
-                style={styles.textInputModal}
-                onChangeText={(text) => setName(text)}
-              />
-              <Text style={styles.modalText}>Telefono:</Text>
-              <TextInput
-                style={styles.textInputModal}
-                onChangeText={(text) => {
-                  text.replace(/[^0-9]/g, "");
-                  setTel(text);
-                }}
-                keyboardType="numeric"
-              />
-              <TouchableHighlight
-                style={{
-                  ...styles.openButton,
-                  backgroundColor: "#009F03",
-                  marginTop: 25,
-                }}
-                onPress={() => saveEmergency()}
-              >
-                <Text style={styles.textStyle}>Guardar</Text>
-              </TouchableHighlight>
-              <TouchableHighlight
-                style={{ ...styles.openButton, backgroundColor: "#f43131" }}
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                }}
-              >
-                <Text style={styles.textStyle}>Cerrar</Text>
-              </TouchableHighlight>
-            </View>
-          </View>
-        ) : (
-          <ActivityIndicator size="large" color="#00ff00" />
-        )}
-      </Modal>
     </View>
   );
 }
@@ -196,55 +109,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 100,
-    backgroundColor: "orange",
+    backgroundColor: "red",
+    shadowColor: "#888888",
   },
   buttonText: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: "75%",
-  },
-  openButton: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-    margin: 5,
-    width: "55%",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    textAlign: "center",
-  },
-  textInputModal: {
-    width: "70%",
-    margin: 5,
-    borderWidth: 1,
-    borderRadius: 20,
-    textAlign: "center",
   },
 });
